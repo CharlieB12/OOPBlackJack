@@ -61,20 +61,36 @@ def add_vals(val_list):
     player_total = 0
     for val in val_list:
         if val == 14:
-            isNum = True
-            while isNum:
-                try:
-                    ace_value = int(input("You got an Ace, input 1 or 11: "))
-                except ValueError:
-                    print("That wasn't a number, enter 1 or 11")
-                else:
-                    player_total += ace_value
-                    isNum = False
+            if player_total + 11 > 21:
+                player_total += 1
+            else:
+                player_total += 11
         elif val == 11 or val == 12 or val == 13:
             player_total += 10
         else:
             player_total += val
     return player_total
+
+
+def hit_stand(cardTotal):
+    passThru = True
+    while passThru or cardTotal < 21:
+        hit_or_stand = (input("Hit or Stand?: ")).lower()
+        loc = len(player1.all_cards)
+        if hit_or_stand == 'hit' or hit_or_stand == 'h':
+            player1.add_card(game_deck.deal_one())
+            time.sleep(2)
+            print(f'Hit card: {player1.all_cards[loc]}')
+            time.sleep(2)
+            playVal = convert_values(player1)
+            cardTotal = add_vals(playVal)
+            print(f"Total: {cardTotal}")
+            passThru = False
+        elif hit_or_stand == 'stand' or hit_or_stand == 's':
+            break
+        else:
+            print('Invalid input, enter "hit" or "stand" ')
+    return cardTotal
 
 
 game_on = True
@@ -99,6 +115,7 @@ while game_on:
 
     card1 = player1.all_cards[0]
     card2 = player1.all_cards[1]
+    dealer1 = dealer.all_cards[0]
     card_totals = add_vals(player_vals)
 
     print(f'First Card: {card1}')
@@ -106,7 +123,11 @@ while game_on:
     print(f'Second Card: {card2}')
     time.sleep(2)
     print(f'Total: {card_totals}')
+    time.sleep(2)
+    print(f"Dealer: \n{dealer1}")
+    time.sleep(2)
 
+    card_totals = hit_stand(card_totals)
 # TO-DO:
 # 1: read up on blackjack rules
 # 2: work on logic to parse the values list (bust, hit, stand, etc.)
