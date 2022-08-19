@@ -7,6 +7,7 @@ values = {'Two': 2, 'Three': 3, 'Four': 4, 'Five': 5, 'Six': 6, 'Seven': 7, 'Eig
           'Nine': 9, 'Ten': 10, 'Jack': 11, 'Queen': 12, 'King': 13, 'Ace': 14}
 
 
+# Class to make an individual card (Ex. Ace of Spades)
 class Cards:
     def __init__(self, suit, rank):
         self.suit = suit
@@ -16,6 +17,7 @@ class Cards:
         return self.rank + ' of ' + self.suit
 
 
+# Class to make a deck consisting of cards from card class
 class Deck:
     def __init__(self):
         self.all_cards = []
@@ -30,6 +32,7 @@ class Deck:
         return self.all_cards.pop()
 
 
+# Class to create player which can hold cards
 class Player:
     def __init__(self, name):
         self.name = name
@@ -57,6 +60,7 @@ def convert_values(name):
     return card_values
 
 
+# Returns the total value of players hand
 def add_vals(val_list):
     player_total = 0
     for val in val_list:
@@ -72,6 +76,7 @@ def add_vals(val_list):
     return player_total
 
 
+# Hit and Stand Logic
 def hit_stand(cardTotal):
     passThru = True
     while passThru or cardTotal < 21:
@@ -93,41 +98,111 @@ def hit_stand(cardTotal):
     return cardTotal
 
 
-game_on = True
+# Win or Lose logic for blackJack
+def game_logic(playerTotal, dealerTotal):
+    global third_card
+    over = False
+    while not over:
+        if dealerTotal < 16:
+            dealer.add_card((game_deck.deal_one()))
+            third_card = values[dealer.all_cards[2].rank]
+            time.sleep(2)
+            print(f"Dealers Third Card: {dealer.all_cards[2]}")
+            dealerTotal += third_card
+        elif dealerTotal > 21:
+            time.sleep(2)
+            print(f'Dealer Total: {dealerTotal}')
+            time.sleep(2)
+            print("Player Wins!")
+            over = True
+        elif playerTotal < dealerTotal:
+            print(f'Dealer Total: {dealerTotal}')
+            time.sleep(2)
+            print("Dealer Wins!")
+            over = True
+        else:
+            time.sleep(2)
+            print(f'Dealer Total: {dealerTotal}')
+            time.sleep(2)
+            print("Player Wins!")
+            over = True
 
+
+# Logic to start new round or quit game
+def aNew_round():
+    global round_on
+    global game_on
+
+    new_round = False
+    while not new_round:
+        again = input("Play Again? (y or n): ").lower()
+        if again == 'y':
+            new_round = True
+        elif again == 'n':
+            round_on = False
+            game_on = False
+            new_round = True
+
+
+player_name = input("Enter your name: ")
+
+# Main game loop
+game_on = True
 while game_on:
 
-    game_deck = Deck()
-    game_deck.shuffle()
+    print("\nNew Round Starting!")
+    time.sleep(4)
+    round_on = True
+    while round_on:
+        game_deck = Deck()
+        game_deck.shuffle()
 
-    player_name = input("Enter your name: ")
+        player1 = Player(player_name)
+        dealer = Player("Dealer")
 
-    player1 = Player(player_name)
-    dealer = Player("Dealer")
+        for i in range(2):
+            player1.add_card(game_deck.deal_one())
+            dealer.add_card((game_deck.deal_one()))
 
-    for i in range(2):
-        player1.add_card(game_deck.deal_one())
+        player_vals = convert_values(player1)
+        dealer_vals = convert_values(dealer)
 
-    dealer.add_card((game_deck.deal_one()))
+        card1 = player1.all_cards[0]
+        card2 = player1.all_cards[1]
+        dealer1 = dealer.all_cards[0]
+        dealer2 = dealer.all_cards[1]
 
-    player_vals = convert_values(player1)
-    dealer_vals = convert_values(dealer)
+        card_totals = add_vals(player_vals)
+        dealer_totals = add_vals(dealer_vals)
 
-    card1 = player1.all_cards[0]
-    card2 = player1.all_cards[1]
-    dealer1 = dealer.all_cards[0]
-    card_totals = add_vals(player_vals)
+        print(f'First Card: {card1}')
+        time.sleep(3)
+        print(f'Second Card: {card2}')
+        time.sleep(2)
+        print(f'Total: {card_totals}')
+        time.sleep(2)
+        print(f'Dealer: {dealer1}')
+        time.sleep(2)
 
-    print(f'First Card: {card1}')
-    time.sleep(3)
-    print(f'Second Card: {card2}')
-    time.sleep(2)
-    print(f'Total: {card_totals}')
-    time.sleep(2)
-    print(f"Dealer: \n{dealer1}")
-    time.sleep(2)
+        card_totals = hit_stand(card_totals)
+        if card_totals > 21:
+            time.sleep(2)
+            print("Bust!")
+            aNew_round()
+            break
+        elif card_totals == 21:
+            time.sleep(2)
+            print("Blackjack!")
+            aNew_round()
+            break
 
-    card_totals = hit_stand(card_totals)
-# TO-DO:
-# 1: read up on blackjack rules
-# 2: work on logic to parse the values list (bust, hit, stand, etc.)
+        time.sleep(2)
+        print(f"Dealers Second Card: {dealer2}")
+        time.sleep(2)
+
+        game_logic(card_totals, dealer_totals)
+        aNew_round()
+
+# TO-DO: Add point system through player class
+#        Test aNewRound function more
+#        Test game multiple times.
